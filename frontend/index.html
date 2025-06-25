@@ -62,20 +62,25 @@
   </div>
   <script src="https://unpkg.com/vue@3"></script>
   <script>
+    const BASE_URL = 'http://web1.gx.edu:3000';
+
     const App = {
       data() {
-        return { todos: [], newTodo: '' }
+        return {
+          todos: [],
+          newTodo: ''
+        };
       },
       mounted() {
         this.fetchTodos();
       },
       methods: {
         async fetchTodos() {
-          const res = await fetch('/api/todos');
+          const res = await fetch(`${BASE_URL}/api/todos`);
           this.todos = await res.json();
         },
         async addTodo() {
-          const res = await fetch('/api/todos', {
+          const res = await fetch(`${BASE_URL}/api/todos`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: this.newTodo })
@@ -85,18 +90,21 @@
           this.newTodo = '';
         },
         async updateTodo(todo) {
-          await fetch(`/api/todos/${todo.id}`, {
+          await fetch(`${BASE_URL}/api/todos/${todo.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(todo)
           });
         },
         async deleteTodo(id) {
-          await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+          await fetch(`${BASE_URL}/api/todos/${id}`, {
+            method: 'DELETE'
+          });
           this.todos = this.todos.filter(t => t.id !== id);
         }
       }
-    }
+    };
+
     Vue.createApp(App).mount('#app');
   </script>
 </body>
