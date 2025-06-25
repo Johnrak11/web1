@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Vue TODO List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #f7f7f7;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .todo-form input {
+      padding: 0.5rem;
+      width: 250px;
+    }
+
+    .todo-form button {
+      padding: 0.5rem;
+      margin-left: 0.5rem;
+    }
+
+    .todo-list li {
+      margin: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .todo-list li span {
+      flex: 1;
+      margin-left: 0.5rem;
+    }
+
+    .todo-list li button {
+      margin-left: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <h1>TODO List</h1>
+    <form class="todo-form" @submit.prevent="addTodo">
+      <input v-model="newTodo" placeholder="New task" required />
+      <button type="submit">Add</button>
+    </form>
+    <ul class="todo-list">
+      <li v-for="todo in todos" :key="todo.id">
+        <input type="checkbox" v-model="todo.completed" @change="updateTodo(todo)" />
+        <span :style="{ textDecoration: todo.completed ? 'line-through' : 'none' }">{{ todo.title }}</span>
+        <button @click="deleteTodo(todo.id)">Delete</button>
+      </li>
+    </ul>
+  </div>
+  <script src="https://unpkg.com/vue@3"></script>
+  <script>
+    const App = {
+      data() {
+        return { todos: [], newTodo: '' }
+      },
+      mounted() {
+        this.fetchTodos();
+      },
+      methods: {
+        async fetchTodos() {
+          const res = await fetch('/api/todos');
+          this.todos = await res.json();
+        },
+        async addTodo() {
+          const res = await fetch('/api/todos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: this.newTodo })
+          });
+          const todo = await res.json();
+          this.todos.push(todo);
+          this.newTodo = '';
+        },
+        async updateTodo(todo) {
+          await fetch(`/api/todos/${todo.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(todo)
+          });
+        },
+        async deleteTodo(id) {
+          await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+          this.todos = this.todos.filter(t => t.id !== id);
+        }
+      }
+    }
+    Vue.createApp(App).mount('#app');
+  </script>
+</body>
+
+</html>
