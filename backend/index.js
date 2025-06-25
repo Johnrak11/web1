@@ -11,8 +11,13 @@ const pool = new Pool({
   user: "postgres",
   host: "localhost",
   database: "todo_db",
-  password: "password",
+  password: "12345678",
   port: 5432,
+});
+
+app.get("/api/test", async (req, res) => {
+  const result = `Hi there, welcome to group 7...`;
+  res.json({"message" : result});
 });
 
 app.get("/api/todos", async (req, res) => {
@@ -46,4 +51,16 @@ app.delete("/api/todos/:id", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, async () => { 
+  console.log(`Server running on port ${PORT}`)
+  try {
+    const result = await pool.query("SELECT * FROM todos ORDER BY id");
+    if (!result.length){
+      console.log(`Database query success.`)
+    }else{
+      console.log(`Database query is emppty.`)
+    }
+  } catch(e) {
+    console.log(e.message)
+  }
+});
